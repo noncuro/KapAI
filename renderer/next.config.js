@@ -1,25 +1,36 @@
 const path = require('path');
 
-module.exports = (nextConfig) => {
-  return Object.assign({}, nextConfig, {
-    webpack(config, options) {
-      config.module.rules.push({
-        test: /\.+(js|jsx|mjs|ts|tsx)$/,
-        loader: options.defaultLoaders.babel,
-        include: [
-          path.join(__dirname, '..', 'main', 'common'),
-          path.join(__dirname, '..', 'main', 'remote-states', 'use-remote-state.ts')
-        ]
-      });
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  reactStrictMode: true,
+  webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
+    config.module.rules.push({
+      test: /\.+(js|jsx|mjs|ts|tsx)$/,
+      use: defaultLoaders.babel,
+      include: [
+        path.join(__dirname, '..', 'main', 'common'),
+        path.join(__dirname, '..', 'main', 'remote-states', 'use-remote-state.ts')
+      ]
+    });
 
-      config.target = 'electron-renderer';
-      config.devtool = 'cheap-module-source-map';
+    // Set the target to electron-renderer
+    config.target = 'electron-renderer';
 
-      if (typeof nextConfig.webpack === 'function') {
-        return nextConfig.webpack(config, options);
-      }
+    // Use a more modern source map option for better performance
+    config.devtool = dev ? 'eval-source-map' : 'source-map';
 
-      return config;
-    }
-  })
-}
+    // Add fallbacks for Node.js core modules
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      path: false,
+      os: false,
+    };
+
+    return config;
+  },
+  // Use standalone output
+  output: 'standalone',
+};
+
+module.exports = nextConfig;
