@@ -34,6 +34,7 @@
     "name": "Kap"
   },
   "dependencies": {
+    "@electron/notarize": "^1.2.2",
     "@sentry/browser": "^7.73.0",
     "@sentry/electron": "^4.8.0",
     "@sindresorhus/to-milliseconds": "^1.2.0",
@@ -42,12 +43,11 @@
     "base64-img": "^1.0.4",
     "classnames": "^2.5.1",
     "clean-stack": "^3.0.1",
-    "copy-file": "^9.1.0",
+    "copy-file": "^11.0.0",
     "delay": "^5.0.0",
     "electron-better-ipc": "^1.1.1",
     "electron-log": "^4.4.8",
     "electron-next": "^3.1.5",
-    "electron-notarize": "^1.2.2",
     "electron-store": "^8.1.0",
     "electron-timber": "^0.5.1",
     "electron-updater": "^4.6.5",
