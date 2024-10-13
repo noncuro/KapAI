@@ -1,7 +1,13 @@
-const path = require('path');
+const withNextron = require('nextron')({
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.target = 'electron-renderer';
+    }
+    return config;
+  }
+});
 
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+module.exports = withNextron({
   reactStrictMode: true,
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
     config.module.rules.push({
@@ -13,13 +19,8 @@ const nextConfig = {
       ]
     });
 
-    // Set the target to electron-renderer
-    config.target = 'electron-renderer';
-
-    // Use a more modern source map option for better performance
     config.devtool = dev ? 'eval-source-map' : 'source-map';
 
-    // Add fallbacks for Node.js core modules
     config.resolve.fallback = {
       ...config.resolve.fallback,
       fs: false,
@@ -29,8 +30,5 @@ const nextConfig = {
 
     return config;
   },
-  // Use standalone output
   output: 'standalone',
-};
-
-module.exports = nextConfig;
+});

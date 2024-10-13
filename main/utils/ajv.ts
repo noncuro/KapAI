@@ -30,21 +30,22 @@ export default class CustomAjv extends Ajv {
   constructor(options: Options) {
     super(options);
 
-    this.addKeyword('customType', {
-      // eslint-disable-next-line @typescript-eslint/ban-types
-      macro: (schema: string, parentSchema: object) => {
-        const validator = validators.get(schema);
-
-        if (!validator) {
-          throw new Error(`No custom type found for ${schema}`);
-        }
-
-        return validator(parentSchema);
-      },
-      metaSchema: {
-        type: 'string',
-        enum: [...validators.keys()]
-      }
-    });
+    this.addKeyword({
+          keyword: 'customType',
+          // eslint-disable-next-line @typescript-eslint/ban-types
+          macro: (schema: string, parentSchema: object) => {
+            const validator = validators.get(schema);
+    
+            if (!validator) {
+              throw new Error(`No custom type found for ${schema}`);
+            }
+    
+            return validator(parentSchema);
+          },
+          metaSchema: {
+            type: 'string',
+            enum: [...validators.keys()]
+          }
+        });
   }
 }

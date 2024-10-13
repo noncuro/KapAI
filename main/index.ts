@@ -25,7 +25,7 @@ import {windowManager} from './windows/manager';
 import {setupProtocol} from './utils/protocol';
 import {stopRecordingWithNoEdit} from './aperture';
 
-const prepareNext = require('electron-next');
+import prepareNext from 'electron-next';
 
 const filesToOpen: string[] = [];
 

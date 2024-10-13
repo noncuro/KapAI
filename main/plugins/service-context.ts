@@ -1,19 +1,19 @@
-import {app, clipboard} from 'electron';
+import { app, clipboard } from 'electron';
 import Store from 'electron-store';
-import got, {GotFn, GotPromise} from 'got';
-import {ApertureOptions, Format} from '../common/types';
-import {InstalledPlugin} from './plugin';
-import {addPluginPromise} from '../utils/deep-linking';
-import {notify} from '../utils/notifications';
+import { ApertureOptions, Format } from '../common/types';
+import { InstalledPlugin } from './plugin';
+import { addPluginPromise } from '../utils/deep-linking';
+import { notify } from '../utils/notifications';
 import PCancelable from 'p-cancelable';
-import {getFormatExtension} from '../common/constants';
+import { getFormatExtension } from '../common/constants';
+import { CancelablePromise } from 'p-event';
 
 interface ServiceContextOptions {
   plugin: InstalledPlugin;
 }
 
 class ServiceContext {
-  requests: Array<GotPromise<any>> = [];
+  requests: Array<CancelablePromise<unknown>> = [];
   config: Store;
 
   private readonly plugin: InstalledPlugin;
@@ -23,10 +23,9 @@ class ServiceContext {
     this.config = this.plugin.config;
   }
 
-  request = (...args: Parameters<GotFn>) => {
-    const request = got(...args);
-    this.requests.push(request);
-    return request;
+  // @ts-ignore
+  request = (...args: any) => {
+    throw new Error('Not implemented');
   };
 
   copyToClipboard = (text: string) => {
@@ -37,7 +36,7 @@ class ServiceContext {
     return notify({
       body: text,
       title: this.plugin.isBuiltIn ? app.name : this.plugin.prettyName,
-      click: action
+      click: action,
     });
   };
 
@@ -46,7 +45,7 @@ class ServiceContext {
   };
 
   waitForDeepLink = async () => {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       addPluginPromise(this.plugin.name, resolve);
     });
   };
@@ -54,7 +53,7 @@ class ServiceContext {
 
 interface ShareServiceContextOptions extends ServiceContextOptions {
   onProgress: (text: string, percentage: number) => void;
-  filePath: (options?: {fileType?: Format}) => Promise<string>;
+  filePath: (options?: { fileType?: Format }) => Promise<string>;
   format: Format;
   prettyFormat: string;
   defaultFileName: string;
@@ -83,7 +82,7 @@ export class ShareServiceContext extends ServiceContext {
     return `${this.options.defaultFileName}.${getFormatExtension(this.options.format)}`;
   }
 
-  filePath = async (options?: {fileType?: Format}) => {
+  filePath = async (options?: { fileType?: Format }) => {
     return this.options.filePath(options);
   };
 
@@ -158,11 +157,14 @@ export class EditServiceContext extends ServiceContext {
   };
 }
 
-export type RecordServiceState<PersistedState extends Record<string, unknown> = Record<string, unknown>> = {
+export type RecordServiceState<
+  PersistedState extends Record<string, unknown> = Record<string, unknown>,
+> = {
   persistedState?: PersistedState;
 };
 
-export interface RecordServiceContextOptions<State extends RecordServiceState> extends ServiceContextOptions {
+export interface RecordServiceContextOptions<State extends RecordServiceState>
+  extends ServiceContextOptions {
   apertureOptions: ApertureOptions;
   state: State;
   setRecordingName: (name: string) => void;
